@@ -712,6 +712,12 @@ nav {
   object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.quiz-thumb:hover {
+  transform: scale(1.05);
 }
 
 .empty-state {
