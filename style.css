@@ -17,7 +17,7 @@
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -36,7 +36,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--text);
@@ -100,31 +100,31 @@ nav {
 }
 
 .avatar-wrap {
-  width: 90px; height: 90px;
+  width: 96px; height: 96px;
   background: var(--accent-light);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 28px;
   overflow: hidden;
-}
-
-.avatar-wrap img {
-  width: 80px; height: 80px; object-fit: contain;
+  padding: 4px;
+  box-sizing: content-box;
 }
 
 .avatar-fallback {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
+  display: none;
 }
 
 .avatar-img {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
   border-radius: 50%;
+  display: block;
 }
 
 .student-title {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 2.4rem;
   font-weight: 700;
   line-height: 1.1;
@@ -149,11 +149,11 @@ nav {
 }
 
 .scroll-badge::before {
-  content: '✦';
+  content: '';
   font-size: 0.7rem;
 }
 .scroll-badge::after {
-  content: '✦';
+  content: '';
   font-size: 0.7rem;
 }
 
@@ -174,7 +174,7 @@ nav {
   font-weight: 600;
 }
 
-.tag::before { content: '✦'; font-size: 0.65rem; }
+.tag::before { content: ''; font-size: 0.65rem; }
 
 .tag-filled {
   background: var(--tag-bg);
@@ -202,7 +202,7 @@ nav {
 .profile-header svg { width: 22px; height: 22px; color: var(--accent); }
 
 .profile-header h2 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text);
@@ -234,14 +234,14 @@ nav {
 }
 
 .profile-value {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 1.45rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .profile-value span {
-  font-family: 'DM Sans', sans-serif;
+  font-family: sans-serif;
   font-size: 0.9rem;
   font-weight: 400;
   color: var(--muted);
@@ -283,7 +283,7 @@ nav {
 .quiz-section-title svg { width: 28px; height: 28px; color: var(--accent); }
 
 .quiz-section-title h1 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--text);
@@ -371,7 +371,7 @@ nav {
 .recent-header svg { width: 20px; height: 20px; color: var(--accent); }
 
 .recent-header h3 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 1rem;
 }
@@ -400,7 +400,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 0.97rem;
 }
@@ -409,8 +409,9 @@ nav {
 
 .quiz-item-meta {
   display: flex;
-  align-items: center;
+  align-items: left;
   gap: 14px;
+
   font-size: 0.78rem;
   color: var(--muted);
 }
@@ -424,7 +425,7 @@ nav {
 .score-badge {
   background: var(--accent);
   color: #fff;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 700;
   font-size: 1rem;
   padding: 10px 22px;
@@ -444,7 +445,7 @@ nav {
 }
 
 .upload-page-card h2 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 20px;
@@ -468,7 +469,7 @@ nav {
   border: 1.5px solid var(--border);
   border-radius: 10px;
   padding: 11px 14px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: sans-serif;
   font-size: 0.9rem;
   color: var(--text);
   background: var(--bg);
@@ -486,7 +487,7 @@ nav {
   border: none;
   border-radius: 12px;
   padding: 12px 28px;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -514,7 +515,7 @@ nav {
 .quiz-section-title svg { width: 28px; height: 28px; color: var(--accent); }
 
 .quiz-section-title h1 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--text);
@@ -539,7 +540,7 @@ nav {
 .recent-header svg { width: 20px; height: 20px; color: var(--accent); }
 
 .recent-header h3 {
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 1rem;
   color: var(--text);
@@ -557,8 +558,15 @@ nav {
   border-radius: 16px;
   padding: 20px 28px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.quiz-item-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .quiz-item-new { animation: fadeIn 0.4s ease; }
@@ -569,7 +577,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 600;
   font-size: 0.97rem;
   color: var(--text);
@@ -591,7 +599,7 @@ nav {
 .score-badge {
   background: var(--accent);
   color: #fff;
-  font-family: 'Sora', sans-serif;
+  font-family: sans-serif;
   font-weight: 700;
   font-size: 1rem;
   padding: 10px 22px;
@@ -617,4 +625,115 @@ nav {
   .card { padding: 28px 22px; }
   .quiz-recent-card { padding: 20px 18px; }
   .quiz-item { padding: 16px 18px; }
+}
+
+/* ── Upload form fields (takenquiz.html) ── */
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+  text-align: left;
+}
+
+.upload-form label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.upload-form input[type="text"],
+.upload-form input[type="number"] {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.upload-form input:focus { border-color: var(--accent); }
+
+.form-row { display: flex; gap: 14px; }
+.form-row > div { flex: 1; }
+
+.add-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 28px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  align-self: flex-start;
+}
+.add-btn:hover { opacity: 0.85; }
+
+.error-msg {
+  color: #e53935;
+  font-size: 0.82rem;
+  display: none;
+}
+
+.delete-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.delete-btn:hover { border-color: #e53935; color: #e53935; }
+
+.quiz-item-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.quiz-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 28px 0;
+}
+
+.score-badge {
+  background: var(--accent) !important;
+}
+
+#preview-img {
+  display: none;
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+
+#quiz-count {
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
 }
