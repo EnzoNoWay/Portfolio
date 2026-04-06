@@ -273,6 +273,58 @@ function badgeClass(score) {
 }
 
 
+// ── VIEW IMAGE MODAL ──────────────────────────────────────────────────────────
+
+function viewImage(imgSrc, title) {
+  // Create modal overlay
+  var modal = document.createElement('div');
+  modal.style.cssText = `
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    cursor: pointer;
+  `;
+  
+  // Image
+  var img = document.createElement('img');
+  img.src = imgSrc;
+  img.style.cssText = `
+    max-width: 90vw; max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  `;
+  img.alt = title;
+  
+  // Title bar
+  var titleBar = document.createElement('div');
+  titleBar.style.cssText = `
+    position: absolute;
+    top: 20px; left: 20px; right: 20px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: white;
+    font-family: sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  `;
+  titleBar.textContent = title;
+  
+  modal.appendChild(titleBar);
+  modal.appendChild(img);
+  modal.onclick = function() { document.body.removeChild(modal); };
+  
+  document.body.appendChild(modal);
+  img.onclick = function(e) { e.stopPropagation(); }; // Prevent closing on img click
+}
+
 // ── STEP 8: DRAW / REFRESH THE QUIZ LIST ─────────────────────────────────────
 
 
@@ -302,9 +354,9 @@ function renderList() {
     // Build thumbnail: prefer path if available, else base64
     var thumb = "";
     if (q.file && q.file !== "—" && !q.file.startsWith('data:')) {
-      thumb = '<img class="quiz-thumb" src="' + q.file + '" alt="quiz image" onerror="this.style.display=\'none\'"/>';
+      thumb = '<img class="quiz-thumb" src="' + q.file + '" alt="' + q.title + '" onclick="viewImage(\'' + q.file + '\',\'' + q.title + '\')" onerror="this.style.display=\'none\'"/>';
     } else if (q.image) {
-      thumb = '<img class="quiz-thumb" src="' + q.image + '" alt="quiz image"/>';
+      thumb = '<img class="quiz-thumb" src="' + q.image + '" alt="' + q.title + '" onclick="viewImage(\'' + q.image + '\',\'' + q.title + '\')"/>';
     }
 
     // Return one quiz row as an HTML string
