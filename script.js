@@ -44,8 +44,8 @@ async function saveImageToFolder(base64Data, suggestedName, targetDir = null) {
     // Decode base64
     const base64Header = base64Data.split(',')[0];
     const mimeMatch = base64Header.match(/data:([^;]+)/);
-    const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    const extension = mimeType.split('/')[1] || 'jpg';
+    const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+    const extension = mimeType.split('/')[1] || 'png';
     
     // Unique filename
     // Use original filename if available, else suggested with timestamp
@@ -60,16 +60,25 @@ async function saveImageToFolder(base64Data, suggestedName, targetDir = null) {
     }
 
     let handle;
-    if (targetDir) {
+    if ('showDirectoryPicker' in window && targetDir) {
       // Auto-save to targetDir/Image/
       const imageSubdir = await targetDir.getDirectoryHandle('Image', { create: true });
       handle = await imageSubdir.getFileHandle(filename, { create: true });
-    } else {
+    } else if ('showSaveFilePicker' in window) {
       // Fallback: user picks file location
       handle = await window.showSaveFilePicker({
         suggestedName: filename,
         types: [{ description: 'Image files', accept: { [mimeType]: ['.' + extension] } }]
       });
+    } else {
+      // Legacy fallback: create download link
+      const a = document.createElement('a');
+      a.href = base64Data;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return filename;
     }
 
     // Base64 to Blob
@@ -90,10 +99,8 @@ async function saveImageToFolder(base64Data, suggestedName, targetDir = null) {
     console.log(`Image saved: ./${fullPath}`);
     return fullPath;
   } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.error('Save failed:', err);
-    }
-    return null;
+    console.log('Save failed, using base64 fallback:', err);
+    return 'base64-fallback';
   }
 }
 
@@ -103,8 +110,9 @@ async function saveImageToFolder(base64Data, suggestedName, targetDir = null) {
 document.addEventListener("DOMContentLoaded", async function () {
 
   // Common upload setup (for both upload.html and takenquiz.html)
-  const hasUploadForm = document.getElementById("file-input");
-  const hasQuizList = document.getElementById("quiz-list");
+  const hasUploadForm = document.querySelector(".file-input");
+  const hasQuizList = document.getElementById("quiz-list");  
+
 
   if (hasUploadForm) {
     // Try to get persistent dir handle for Image/
@@ -114,105 +122,123 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log('Dir picker cancelled/failed; will use file picker fallback');
     }
 
-    // Prefill date input with today
-    const dateInput = document.getElementById('quiz-date');
-    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-
-    // File input handler
-    const fileInput = document.getElementById("file-input");
-    fileInput.addEventListener("change", function () {
-      const file = this.files[0];
-      if (!file) return;
-
-      document.getElementById("file-name-display").textContent = file.name;
-
-      const titleBox = document.getElementById("quiz-title");
-      if (!titleBox.value.trim()) {
-        titleBox.value = file.name.replace(/\.[^/.]+$/, "");
-      }
-
-      window.selectedOriginalFilename = file.name;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        window.selectedImage = e.target.result;
-        const preview = document.getElementById("preview-img");
-        preview.src = window.selectedImage;
-        preview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+    // Prefill date inputs
+    document.querySelectorAll('.quiz-date').forEach(input => {
+      input.value = new Date().toISOString().split('T')[0];
     });
 
-    // Add button handler
-    document.getElementById("add-btn").addEventListener("click", async function () {
-      const titleBox = document.getElementById("quiz-title");
-      const scoreBox = document.getElementById("quiz-score");
-      const errorMsg = document.getElementById("error-msg");
+    // Handler for all file inputs
+    document.querySelectorAll('.file-input').forEach(fileInput => {
+      fileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
 
-      let title = titleBox.value.trim();
-      if (!title) {
-        errorMsg.style.display = "block";
-        titleBox.focus();
-        return;
-      }
-      errorMsg.style.display = "none";
+        const card = this.closest('.upload-card');
+        const fileNameEl = card.querySelector('.file-name');
+        fileNameEl.textContent = file.name;
 
-      let score = null;
-      const rawScore = scoreBox.value.trim();
-      if (rawScore !== "") {
-        score = parseInt(rawScore, 10);
-        score = Math.max(0, Math.min(100, score));
-      }
-
-      let dateStr;
-      const dateInputEl = document.getElementById('quiz-date');
-      if (dateInputEl.value) {
-        const quizDate = new Date(dateInputEl.value + 'T00:00:00');
-        if (!isNaN(quizDate.getTime())) {
-          dateStr = quizDate.toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
+        const titleBox = card.querySelector('.quiz-title');
+        if (!titleBox.value.trim()) {
+          titleBox.value = file.name.replace(/\.[^/.]+$/, "");
         }
-      }
-      const today = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
 
-      let fileName = "—";
-      let imageForList = null;
-      if (window.selectedImage) {
-        const savedPath = await saveImageToFolder(window.selectedImage, title || 'quiz', imageDirHandle);
-        if (savedPath) {
-          fileName = savedPath;
-        } else {
-          imageForList = window.selectedImage;
+        window.selectedOriginalFilename = file.name;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          window.selectedImage = e.target.result;
+          const preview = card.querySelector('.preview-img');
+          preview.src = window.selectedImage;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Handler for all add buttons
+    document.querySelectorAll('.add-btn').forEach(addBtn => {
+      addBtn.addEventListener("click", async function () {
+        const card = this.closest('.upload-card');
+        const titleBox = card.querySelector('.quiz-title');
+        const scoreBox = card.querySelector('.quiz-score');
+        const errorMsg = card.querySelector('.error-msg');
+        const fileInput = card.querySelector('.file-input');
+        const previewImg = card.querySelector('.preview-img');
+        const dateInput = card.querySelector('.quiz-date');
+        const type = card.dataset.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        let title = titleBox.value.trim();
+        if (!title) {
+          errorMsg.style.display = "block";
+          titleBox.focus();
+          return;
         }
-      }
+        errorMsg.style.display = "none";
 
-      const newQuiz = {
-        id: Date.now(),
-        title,
-        date: today,
-        file: fileName,
-        score,
-        image: imageForList,
-      };
+        let score = null;
+        const rawScore = scoreBox.value.trim();
+        if (rawScore !== "") {
+          score = parseInt(rawScore, 10);
+          score = Math.max(0, Math.min(100, score));
+        }
 
-      // Load existing quizzes if any
-      loadQuizzes();
-      quizzes.unshift(newQuiz);
-      localStorage.setItem('quizzes', JSON.stringify(quizzes));
+        let dateStr;
+        if (dateInput.value) {
+          const quizDate = new Date(dateInput.value + 'T00:00:00');
+          if (!isNaN(quizDate.getTime())) {
+            dateStr = quizDate.toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
+          }
+        }
+        const today = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
 
-      // Clear form
-      titleBox.value = "";
-      scoreBox.value = "";
-      if (dateInputEl) dateInputEl.value = "";
-      fileInput.value = "";
-      document.getElementById("file-name-display").textContent = "No file chosen";
-      document.getElementById("preview-img").style.display = "none";
-      window.selectedImage = null;
-      window.selectedOriginalFilename = null;
+        let fileName = "—";
+        let imageForList = null;
+        if (window.selectedImage) {
+          const savedPath = await saveImageToFolder(window.selectedImage, title || type.toLowerCase(), imageDirHandle);
+          if (savedPath) {
+            fileName = savedPath;
+          } else {
+            imageForList = window.selectedImage;
+          }
+        }
 
-      // Render if list exists
-      if (hasQuizList) renderList();
+        const newQuiz = {
+          id: Date.now(),
+          title,
+          type,
+          date: today,
+          file: fileName,
+          score,
+          image: imageForList,
+        };
+
+        // Load existing quizzes if any
+        loadQuizzes();
+        quizzes.unshift(newQuiz);
+        try {
+          localStorage.setItem('quizzes', JSON.stringify(quizzes.slice(0,50))); // Limit to 50 to avoid quota
+        } catch (e) {
+          console.warn('localStorage quota exceeded, trimming old quizzes');
+          quizzes = quizzes.slice(-50); // Keep last 50
+          localStorage.setItem('quizzes', JSON.stringify(quizzes));
+        }
+
+        // Clear form
+        titleBox.value = "";
+        scoreBox.value = "";
+        dateInput.value = "";
+        fileInput.value = "";
+        card.querySelector('.file-name').textContent = "No file chosen";
+        previewImg.style.display = "none";
+        window.selectedImage = null;
+        window.selectedOriginalFilename = null;
+
+        // Render if list exists
+        if (hasQuizList) renderList();
+      });
     });
   }
+
 
   // Quiz list setup (only if present)
   if (hasQuizList) {
@@ -338,9 +364,11 @@ function renderList() {
         '<div class="quiz-item-left">' +
           '<div class="quiz-item-title">' + q.title + "</div>" +
           '<div class="quiz-item-meta">' +
+            "<span>" + (q.type || 'Quiz') + "</span>" +
             "<span>" + q.date + "</span>" +
             "<span>" + q.file + "</span>" +
           "</div>" +
+
         "</div>" +
         '<div class="quiz-item-right">' +
           '<div class="score-badge ' + cls + '">' + label + "</div>" +
