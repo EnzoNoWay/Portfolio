@@ -22,8 +22,8 @@ function showPage(name) {
 // These 3 are the default entries shown on first load.
 
 var quizzes = [
-  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 17/20, image: null },
-  { id: 2, title: "Quiz 3",             date: "March 10, 2026", file: "Image/Quiz 3.jpg",  score: 10/20, image: null },
+  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 17, image: null },
+  { id: 2, title: "Quiz 3",             date: "March 10, 2026", file: "Image/Quiz 3.jpg",  score: 10, image: null },
   { id: 3, title: "Computer 1", date: "March 06, 2026",  file: "Image/Comlab 1.jpg", score: 75, image: null },
 ];
 
