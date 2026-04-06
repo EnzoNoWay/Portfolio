@@ -22,8 +22,8 @@ function showPage(name) {
 // These 3 are the default entries shown on first load.
 
 var quizzes = [
-  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 17, image: null },
-  { id: 2, title: "Quiz 3",             date: "March 10, 2026", file: "Image/Quiz 3.jpg",  score: 10, image: null },
+  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 17/20, image: null },
+  { id: 2, title: "Quiz 3",             date: "March 10, 2026", file: "Image/Quiz 3.jpg",  score: 10/20, image: null },
   { id: 3, title: "Computer 1", date: "March 06, 2026",  file: "Image/Comlab 1.jpg", score: 75, image: null },
 ];
 
@@ -102,151 +102,123 @@ async function saveImageToFolder(base64Data, suggestedName, targetDir = null) {
 
 document.addEventListener("DOMContentLoaded", async function () {
 
-  // If the quiz list div doesn't exist, we're on index.html — stop here
-  if (!document.getElementById("quiz-list")) return;
+  // Common upload setup (for both upload.html and takenquiz.html)
+  const hasUploadForm = document.getElementById("file-input");
+  const hasQuizList = document.getElementById("quiz-list");
 
-  // Try to get persistent dir handle for Image/ (user grants once)
-  try {
-    imageDirHandle = await window.showDirectoryPicker();
-  } catch (e) {
-    console.log('Dir picker cancelled/failed; will use file picker fallback');
+  if (hasUploadForm) {
+    // Try to get persistent dir handle for Image/
+    try {
+      imageDirHandle = await window.showDirectoryPicker();
+    } catch (e) {
+      console.log('Dir picker cancelled/failed; will use file picker fallback');
+    }
+
+    // Prefill date input with today
+    const dateInput = document.getElementById('quiz-date');
+    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+    // File input handler
+    const fileInput = document.getElementById("file-input");
+    fileInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      document.getElementById("file-name-display").textContent = file.name;
+
+      const titleBox = document.getElementById("quiz-title");
+      if (!titleBox.value.trim()) {
+        titleBox.value = file.name.replace(/\.[^/.]+$/, "");
+      }
+
+      window.selectedOriginalFilename = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        window.selectedImage = e.target.result;
+        const preview = document.getElementById("preview-img");
+        preview.src = window.selectedImage;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Add button handler
+    document.getElementById("add-btn").addEventListener("click", async function () {
+      const titleBox = document.getElementById("quiz-title");
+      const scoreBox = document.getElementById("quiz-score");
+      const errorMsg = document.getElementById("error-msg");
+
+      let title = titleBox.value.trim();
+      if (!title) {
+        errorMsg.style.display = "block";
+        titleBox.focus();
+        return;
+      }
+      errorMsg.style.display = "none";
+
+      let score = null;
+      const rawScore = scoreBox.value.trim();
+      if (rawScore !== "") {
+        score = parseInt(rawScore, 10);
+        score = Math.max(0, Math.min(100, score));
+      }
+
+      let dateStr;
+      const dateInputEl = document.getElementById('quiz-date');
+      if (dateInputEl.value) {
+        const quizDate = new Date(dateInputEl.value + 'T00:00:00');
+        if (!isNaN(quizDate.getTime())) {
+          dateStr = quizDate.toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
+        }
+      }
+      const today = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }).toLowerCase();
+
+      let fileName = "—";
+      let imageForList = null;
+      if (window.selectedImage) {
+        const savedPath = await saveImageToFolder(window.selectedImage, title || 'quiz', imageDirHandle);
+        if (savedPath) {
+          fileName = savedPath;
+        } else {
+          imageForList = window.selectedImage;
+        }
+      }
+
+      const newQuiz = {
+        id: Date.now(),
+        title,
+        date: today,
+        file: fileName,
+        score,
+        image: imageForList,
+      };
+
+      // Load existing quizzes if any
+      loadQuizzes();
+      quizzes.unshift(newQuiz);
+      localStorage.setItem('quizzes', JSON.stringify(quizzes));
+
+      // Clear form
+      titleBox.value = "";
+      scoreBox.value = "";
+      if (dateInputEl) dateInputEl.value = "";
+      fileInput.value = "";
+      document.getElementById("file-name-display").textContent = "No file chosen";
+      document.getElementById("preview-img").style.display = "none";
+      window.selectedImage = null;
+      window.selectedOriginalFilename = null;
+
+      // Render if list exists
+      if (hasQuizList) renderList();
+    });
   }
 
-  // Prefill date input with today
-  const todayDate = new Date().toISOString().split('T')[0];
-  document.getElementById('quiz-date').value = todayDate;
-
-  // ── STEP 3: FILE INPUT ───────────────────────────────────────────────────
-  // When the user picks an image file, this runs automatically
-
-  var fileInput = document.getElementById("file-input");
-
-  fileInput.addEventListener("change", function () {
-    var file = this.files[0]; // grab the file the user picked
-    if (!file) return;        // if nothing was picked, stop
-
-    // Show the filename next to the "Choose File" button
-    document.getElementById("file-name-display").textContent = file.name;
-
-    // If the quiz title box is empty, auto-fill it using the filename
-    // e.g. "quiz1.jpg" becomes "quiz1"
-    var titleBox = document.getElementById("quiz-title");
-    if (!titleBox.value.trim()) {
-      titleBox.value = file.name.replace(/\.[^/.]+$/, "");
-    }
-
-    // Save original filename for saving
-    selectedOriginalFilename = file.name;
-
-    // Read the image so we can preview it and save it
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      selectedImage = e.target.result; // save the image data
-
-      // Show the preview image on the page
-      var preview = document.getElementById("preview-img");
-      preview.src = selectedImage;
-      preview.style.display = "block";
-    };
-    reader.readAsDataURL(file); // this triggers the reader.onload above
-  });
-
-
-  // ── STEP 4: ADD BUTTON ───────────────────────────────────────────────────
-  // When the user clicks "Add to List", this runs
-
-  document.getElementById("add-btn").addEventListener("click", async function () {
-
-    var titleBox = document.getElementById("quiz-title");
-    var scoreBox = document.getElementById("quiz-score");
-    var errorMsg = document.getElementById("error-msg");
-
-    var title = titleBox.value.trim(); // .trim() removes extra spaces
-
-    // If the title box is empty, show an error and stop
-    if (!title) {
-      errorMsg.style.display = "block";
-      titleBox.focus();
-      return;
-    }
-
-    // Hide the error message if it was showing
-    errorMsg.style.display = "none";
-
-    // Read the score (optional — blank means null = no score)
-    var rawScore = scoreBox.value.trim();
-    var score = null;
-    if (rawScore !== "") {
-      score = parseInt(rawScore, 10); // convert text "95" to number 95
-      if (score > 100) score = 100;  // cap at 100
-      if (score < 0)   score = 0;    // floor at 0
-    }
-
-    // Get custom date or fallback to today formatted like "april 03, 2026"
-    var dateInput = document.getElementById('quiz-date');
-    var dateStr;
-    if (dateInput.value) {
-      var quizDate = new Date(dateInput.value + 'T00:00:00');
-      if (!isNaN(quizDate.getTime())) {
-        dateStr = quizDate.toLocaleDateString("en-US", {
-          month: "long",
-          day:   "2-digit",
-          year:  "numeric",
-        }).toLowerCase();
-      }
-    }
-    var today = dateStr || new Date().toLocaleDateString("en-US", {
-      month: "long",
-      day:   "2-digit",
-      year:  "numeric",
-    }).toLowerCase();
-
-    // If image selected, auto-save to Image/ before adding
-    var fileName = "—";
-    var imageForList = null;
-    if (selectedImage) {
-      const savedPath = await saveImageToFolder(selectedImage, title || 'quiz', imageDirHandle);
-      if (savedPath) {
-        fileName = savedPath;
-        imageForList = null; // Use path for thumbnail instead of base64
-      } else {
-        imageForList = selectedImage; // Fallback to base64 if save failed
-      }
-    }
-
-    // Build the new quiz object (one row in the list)
-    var newQuiz = {
-      id:    Date.now(), // unique number based on current time
-      title: title,
-      date:  today,
-      file:  fileName,
-      score: score,
-      image: imageForList,
-    };
-
-    // Add the new quiz to the FRONT of the list (newest on top)
-    quizzes.unshift(newQuiz);
-
-    // Clear all the form fields ready for the next entry
-    titleBox.value  = "";
-    scoreBox.value  = "";
-    document.getElementById('quiz-date').value = "";
-    fileInput.value = "";
-    document.getElementById("file-name-display").textContent = "No file chosen";
-    document.getElementById("preview-img").style.display = "none";
-    selectedImage = null;
-    selectedOriginalFilename = null;
-
-    // Refresh the list on the page to show the new entry
+  // Quiz list setup (only if present)
+  if (hasQuizList) {
+    loadQuizzes();
     renderList();
-  });
-
-
-  // ── STEP 5: SHOW THE LIST ON FIRST LOAD ─────────────────────────────────
-  // Load saved quizzes
-  loadQuizzes();
-  // Draw the quiz list as soon as the page opens
-  renderList();
+  }
 
 });
 
