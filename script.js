@@ -22,9 +22,9 @@ function showPage(name) {
 // These 3 are the default entries shown on first load.
 
 var quizzes = [
-  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 100, image: null },
-  { id: 2, title: "Cuiz 3",             date: "March 10, 2026", file: "Image/quiz3.jpg",  score: 100, image: null },
-  { id: 3, title: "Computer 1", date: "March 06, 2026",  file: "Image/Comlab 1.png", score: 100, image: null },
+  { id: 1, title: "Quiz 2",       date: "Februaru 24, 2026",   file: "Image/Quiz 2.jpg",   score: 17, image: null },
+  { id: 2, title: "Cuiz 3",             date: "March 10, 2026", file: "Image/quiz3.jpg",  score: 10, image: null },
+  { id: 3, title: "Computer 1", date: "March 06, 2026",  file: "Image/Comlab 1.png", score: 75, image: null },
 ];
 
 // Holds the image the user picked (as base64 data), or null if none chosen
