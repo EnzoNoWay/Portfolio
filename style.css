@@ -755,3 +755,28 @@ nav {
   color: var(--accent);
   font-weight: 600;
 }
+
+/* Calculator attachment button */
+.attachment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-light);
+  color: var(--accent);
+  text-decoration: none;
+  border: 1.5px solid var(--accent-soft);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.attachment-btn:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
