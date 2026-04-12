@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: white;
+      color: black;
+    }
+
+    body.dark {
+      background-color: #1a1a1a;
+      color: white;
+    }
+
+    .calculator {
+      text-align: center;
+    }
+
+    input {
+      padding: 5px;
+      margin: 5px;
+      width: 150px;
+    }
+
+    button {
+      padding: 5px 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    #alertBtn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #darkModeBtn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #homeBtn {
+      position: fixed;
+      top: 15px;
+      left: 120px;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <button id="alertBtn" onclick="alert('Hello BSCS1D!')">Alert Botton</button>
+  <button id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+  <button id="homeBtn" onclick="window.location.href='index.html'">Home Botton</button>
+
+  <div class="calculator">
+    <h2>Simple Calculator</h2>
+    <div>
+      <input type="number" id="num1" placeholder="Enter first number">
+      <input type="number" id="num2" placeholder="Enter second number">
+    </div>
+    <div>
+      <button onclick="addNumbers()">Add (+)</button>
+      <button onclick="sub()">Subtract (-)</button>
+      <button onclick="mul()">Multiply (x)</button>
+      <button onclick="divNumbers()">Divide (÷)</button>
+      <button onclick="clearResult()">Clear (C)</button>
+    </div>
+    <div id="result">Result: 0</div>
+  </div>
+
+  <script>
+    
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+      let btn = document.getElementById("darkModeBtn");
+      
+    }
+
+    // Calculator
+    function getInputs() {
+      let num1 = Number(document.getElementById("num1").value);
+      let num2 = Number(document.getElementById("num2").value);
+      return { num1, num2 };
+    }
+
+    function showResult(num1, op, num2, result) {
+      document.getElementById("result").innerHTML = "Result: " + num1 + " " + op + " " + num2 + " = " + result;
+      if (alertOn) alert("Result: " + num1 + " " + op + " " + num2 + " = " + result);
+    }
+
+    function calculateSum(a, b) { return a + b; }
+    function calculateSub(a, b) { return a - b; }
+    function calculateMul(a, b) { return a * b; }
+    function calculateDiv(a, b) { return b !== 0 ? a / b : "Error: Division by zero"; }
+
+    function addNumbers() {
+      let { num1, num2 } = getInputs();
+      showResult(num1, "+", num2, calculateSum(num1, num2));
+    }
+
+    function sub() {
+      let { num1, num2 } = getInputs();
+      showResult(num1, "-", num2, calculateSub(num1, num2));
+    }
+
+    function mul() {
+      let { num1, num2 } = getInputs();
+      showResult(num1, "x", num2, calculateMul(num1, num2));
+    }
+
+    function divNumbers() {
+      let { num1, num2 } = getInputs();
+      showResult(num1, "÷", num2, calculateDiv(num1, num2));
+    }
+
+    function clearResult() {
+      document.getElementById("num1").value = "";
+      document.getElementById("num2").value = "";
+      document.getElementById("result").innerHTML = "Result: 0";
+    }
+  </script>
+</body>
+</html>
